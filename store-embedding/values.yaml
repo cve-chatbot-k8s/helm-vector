@@ -1,0 +1,30 @@
+cveSearchEngineService:
+  ports:
+  - port: 80
+    targetPort: 8501
+  type: LoadBalancer
+kubernetesClusterDomain: cluster.local
+
+
+openaiApiKey:
+  apiKey: "placeholder" # Replace with your OpenAI API key
+
+cveSearchEngineJob:
+  backoffLimit: 3
+  cveSearchEngine:
+    env:
+      dbPort: "5432"
+      dbHost: "postgres-svc.consumer.svc.cluster.local"
+      dbUser: "cve_user"
+      dbPassword: "placeholder"
+      dbName: "cve"
+    
+    image:
+      repository: "girish332/cve-vector-store"
+      tag: "latest"
+      imagePullPolicy: "Always"
+
+namespace: vector
+
+secret:  
+  dockerconfigjson: placeholder_docker_config_json
