@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chatbot.fullname" . }}-cve-chatbot-deployment
+  labels:
+  {{- include "chatbot.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.cveChatbotDeployment.replicas }}
+  selector:
+    matchLabels:
+      app: cve-chatbot
+    {{- include "chatbot.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: cve-chatbot
+      {{- include "chatbot.selectorLabels" . | nindent 8 }}
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+      - env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: api_key
+              name: openai-api-key
+        - name: DB_HOST
+          value: {{ quote .Values.cveChatbotDeployment.cveChatbot.env.dbHost }}
+        - name: DB_PORT
+          value: {{ quote .Values.cveChatbotDeployment.cveChatbot.env.dbPort }}
+        - name: DB_NAME
+          value: {{ quote .Values.cveChatbotDeployment.cveChatbot.env.dbName }}
+        - name: DB_USER
+          value: {{ quote .Values.cveChatbotDeployment.cveChatbot.env.dbUser }}
+        - name: DB_PASSWORD
+          value: {{ quote .Values.cveChatbotDeployment.cveChatbot.env.dbPassword }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.cveChatbotDeployment.cveChatbot.image.repository }}:{{ .Values.cveChatbotDeployment.cveChatbot.image.tag }}
+        imagePullPolicy: {{ .Values.cveChatbotDeployment.cveChatbot.imagePullPolicy }}
+        name: cve-chatbot
+        ports:
+        - containerPort: 8501
+        resources: {}

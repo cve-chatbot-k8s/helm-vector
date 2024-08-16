@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "chart.fullname" . }}-cve-search-engine-job
+  labels:
+    app: cve-search-engine
+  {{- include "chart.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ .Values.cveSearchEngineJob.backoffLimit }}
+  template:
+    metadata:
+      labels:
+        app: cve-vector-store
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+      - env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: api_key
+              name: openai-api-key
+        - name: DB_HOST
+          value: {{ quote .Values.cveSearchEngineJob.cveSearchEngine.env.dbHost }}
+        - name: DB_PORT
+          value: {{ quote .Values.cveSearchEngineJob.cveSearchEngine.env.dbPort }}
+        - name: DB_NAME
+          value: {{ quote .Values.cveSearchEngineJob.cveSearchEngine.env.dbName }}
+        - name: DB_USER
+          value: {{ quote .Values.cveSearchEngineJob.cveSearchEngine.env.dbUser }}
+        - name: DB_PASSWORD
+          value: {{ quote .Values.cveSearchEngineJob.cveSearchEngine.env.dbPassword
+            }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.cveSearchEngineJob.cveSearchEngine.image.repository }}:{{ .Values.cveSearchEngineJob.cveSearchEngine.image.tag }}
+        imagePullPolicy: {{ .Values.cveSearchEngineJob.cveSearchEngine.imagePullPolicy
+          }}
+        name: cve-search-engine
+        ports:
+        - containerPort: 8501
+        resources: {}
+      restartPolicy: Never

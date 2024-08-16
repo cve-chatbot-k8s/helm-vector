@@ -1,0 +1,20 @@
+cveChatbotDeployment:
+  cveChatbot:
+    env:
+      dbHost: postgres-svc.consumer.svc.cluster.local
+      dbName: cve
+      dbPassword: password1234
+      dbPort: "5432"
+      dbUser: cve_user
+    image:
+      repository: girish332/cve-chatbot
+      tag: latest
+    imagePullPolicy: Always
+  replicas: 1
+kubernetesClusterDomain: cluster.local
+
+
+cveSearchEngineService:
+  ports:
+    - port: 80
+      targetPort: 8080
