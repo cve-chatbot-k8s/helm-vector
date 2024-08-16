@@ -1,7 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: cve-chatbot-deployment
+  name: cve-search-engine-service
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    external-dns.alpha.kubernetes.io/hostname: chatbot.missionk8s.xyz
   labels:
     app: cve-chatbot
     {{- include "chatbot.labels" . | nindent 4 }}
